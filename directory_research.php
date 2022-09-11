@@ -6,6 +6,7 @@ $honban = '';    // URLを書き換える場合は、書き換えたいURL（末
 $is_link = false;    // リストにリンクをつけたい時「true」いらない場合「false」
 $is_download = false;   // csvファイルをダウロードするとき「true」、いらない場合「false」
 $extension = 'html, php';    // 取得したい拡張子（複数ある場合はカンマ区切り、全部のときは空にする）
+$exclude = '_build, assets';    // 取得対象から除外したいディレクトリ（複数ある場合はカンマ区切り）同名ディレクトリの処理を変更するときは、開始ディレクトリから、スラッシュ区切りで指定する
 
 $remove_title = '';     // 下層ページの共通タイトルテキスト（表示時、除去します）
 ?>
@@ -18,6 +19,11 @@ if ($_GET['link'] && $_GET['link'] !== 'false') $is_link = true;
 if ($_GET['extension']) $extension = $_GET['extension'];
 if ($_GET['title']) $remove_title = $_GET['title'];
 if ($_GET['download'] && $_GET['download'] !== 'false') $is_download = true;
+if ($_GET['exclude']) $exclude = $_GET['exclude'];
+
+
+// スラッシュ調整
+$dir_tgt = rtrim($dir_tgt, '/');
 
 //　定数
 $url = dirname((empty($_SERVER['HTTPS']) ? 'http://' : 'https://') . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
@@ -27,6 +33,18 @@ $dir_path = ($dir_tgt === '')? $path: $path . '/' . $dir_tgt;
 
 $extension = preg_replace('/[ 　]+/u', '', $extension);
 $array_extension = explode(',', $extension);
+
+$exclude = preg_replace('/[ 　]+/u', '', $exclude);
+$array_exclude = explode(',', $exclude);
+
+for ($i = 0; $i < count($array_exclude); $i++) {
+    if (strpos($array_exclude[$i], '/') !== false) {
+        $array_exclude[$i] = ltrim($array_exclude[$i], '/');
+        $array_exclude[$i] = rtrim($array_exclude[$i], '/');
+        $array_exclude[$i] = $dir_path . '/' . $array_exclude[$i];
+    }
+}
+
 
 // ファイル作成
 $is_file_create = false;
@@ -141,6 +159,18 @@ function echo_html($file, $type) {
 }
 
 /**
+ * 除外ディレクトリか判別する
+ * 
+ * @param string $file 調査する文字列
+ * @return boolean
+ */
+function is_exclude($file) {
+    global $array_exclude;
+
+    return in_array(basename($file), $array_exclude) || in_array($file, $array_exclude);
+}
+
+/**
  * ディレクトリ内をループ処理する
  * 
  * @param string $dir 調べる起点となるディレクトリ
@@ -156,7 +186,11 @@ function set_list($dir) {
 
             if (is_dir($file)) {
                 echo_html($file, 'dir');
-                set_list($file);
+                if (is_exclude($file)) {
+                    continue;
+                } else {                 
+                    set_list($file);
+                }
             } else if (is_file($file)) {
                 $fileinfo = pathinfo($file);
                 $fileinfo_extension = $fileinfo['extension'];
