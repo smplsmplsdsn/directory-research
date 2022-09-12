@@ -21,6 +21,11 @@ if ($_GET['title']) $remove_title = $_GET['title'];
 if ($_GET['download'] && $_GET['download'] !== 'false') $is_download = true;
 if ($_GET['exclude']) $exclude = $_GET['exclude'];
 
+// セキュリティ対策「上部の階層は見れないようにする」
+if (strpos($dir_tgt, '..') !== false && empty($_SERVER['HTTPS']) === false) {
+    echo 'NG ../';
+    die();
+}
 
 // スラッシュ調整
 $dir_tgt = rtrim($dir_tgt, '/');
