@@ -2,6 +2,7 @@
 
 // 設定（このファイルを修正しなくても、getパラメータで上書きすることが可能）
 $dir_tgt = '';      // 開始ディレクトリ名(末尾はスラッシュなし)
+$dir_depth = 'all';      // 取得する階層の深さ
 $honban = '';    // URLを書き換える場合は、書き換えたいURL（末尾はスラッシュなし）
 $is_link = false;    // リストにリンクをつけたい時「true」いらない場合「false」
 $is_download = false;   // csvファイルをダウロードするとき「true」、いらない場合「false」
@@ -14,6 +15,7 @@ $remove_title = '';     // 下層ページの共通タイトルテキスト（�
 <?php
 // パラメータで上書き用
 if ($_GET['dir']) $dir_tgt = $_GET['dir'];
+if ($_GET['depth']) $dir_depth = $_GET['depth'].trim();
 if ($_GET['url']) $honban = $_GET['url'];
 if ($_GET['link'] && $_GET['link'] !== 'false') $is_link = true;
 if ($_GET['extension']) $extension = $_GET['extension'];
@@ -25,6 +27,13 @@ if ($_GET['exclude']) $exclude = $_GET['exclude'];
 if (strpos($dir_tgt, '..') !== false && empty($_SERVER['HTTPS']) === false) {
     echo 'NG ../';
     die();
+}
+
+// 階層の深さ
+if (ctype_digit($dir_depth)) {
+    $dir_depth = (+$dir_depth);
+} else {
+    $dir_depth = 'all';
 }
 
 // スラッシュ調整
@@ -96,6 +105,7 @@ function echo_html($file, $type) {
     global $is_file_create;
     global $res;
     global $file_num;
+    global $dir_depth;
 
     $link = str_replace($dir_path, $dir_url, $file);
     $link = str_replace($dir_url, $honban, $link);
@@ -107,59 +117,61 @@ function echo_html($file, $type) {
 
     $title = '';
 
-    if ($type === 'file') {
+    if (!is_int($dir_depth) || $dir_depth >= $num) {
 
-        if ($content = file_get_contents($file)) {
+        if ($type === 'file') {
 
-            //文字コードをUTF-8に変換し、正規表現でタイトルを抽出
-            if (preg_match('/<title(.*?)<\/title>/i', mb_convert_encoding($content, 'utf-8', 'auto'), $result)) {
-                $title = $result[1];
-                $array_title = explode('>', $title);
-                array_shift($array_title);
-                $title = implode('>', $array_title);
-                $title = str_replace($remove_title, '', $title);
+            if ($content = file_get_contents($file)) {
 
-                $title_htmlentities = htmlentities($title, ENT_QUOTES, 'utf-8');
+                //文字コードをUTF-8に変換し、正規表現でタイトルを抽出
+                if (preg_match('/<title(.*?)<\/title>/i', mb_convert_encoding($content, 'utf-8', 'auto'), $result)) {
+                    $title = $result[1];
+                    $array_title = explode('>', $title);
+                    array_shift($array_title);
+                    $title = implode('>', $array_title);
+                    $title = str_replace($remove_title, '', $title);
 
+                    $title_htmlentities = htmlentities($title, ENT_QUOTES, 'utf-8');
+
+                }
             }
         }
-    }
 
-    $html = '';
-    $html .= '<li data-num="' . $num . '" data-type="' . $type . '" data-title="' . $title_htmlentities . '">';
-    if ($is_link) $html .= '<a href="' . $link . '">';
-    $html .= $basename;
-    if ($is_link) $html .= '</a>';
-    $html .= '</li>';
+        $html = '';
+        $html .= '<li data-num="' . $num . '" data-type="' . $type . '" data-title="' . $title_htmlentities . '">';
+        if ($is_link) $html .= '<a href="' . $link . '">';
+        $html .= $basename;
+        if ($is_link) $html .= '</a>';
+        $html .= '</li>';
 
-    echo $html;
+        echo $html;
 
 
-    if ($is_file_create) {
+        if ($is_file_create) {
 
-        $csv = [];        
-        $csv[] = $title;
-        if ($type === 'file') {
-            $file_num++;
-            $csv[] = $file_num;
-        } else {
-            $csv[] = '';
-        }
-
-        if ($is_link) {
-            $csv[] = $link;
-
-        }
-
-        for ($i = 1; $i <= $num; $i++) {
-            if ($i === $num) {
-                $csv[] = $basename;
-                break;
+            $csv = [];        
+            $csv[] = $title;
+            if ($type === 'file') {
+                $file_num++;
+                $csv[] = $file_num;
             } else {
                 $csv[] = '';
             }
+
+            if ($is_link) {
+                $csv[] = $link;
+            }
+
+            for ($i = 1; $i <= $num; $i++) {
+                if ($i === $num) {
+                    $csv[] = $basename;
+                    break;
+                } else {
+                    $csv[] = '';
+                }
+            }
+            $res -> fputcsv($csv);
         }
-        $res -> fputcsv($csv);
     }
 }
 
