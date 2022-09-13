@@ -2,15 +2,17 @@
 
 // 設定（このファイルを修正しなくても、getパラメータで上書きすることが可能）
 $extension = 'html,php';    // 取得したい拡張子（複数ある場合はカンマ区切り、全部のときは「all」にする）
+$exclude = '';    // 取得対象から除外したいディレクトリ（複数ある場合はカンマ区切り）同名ディレクトリの処理を変更するときは、開始ディレクトリから、スラッシュ区切りで指定する
+
+$is_link = false;    // リストにリンクをつけたい時「true」いらない場合「false」
 $link_text = '';    // URLを書き換える場合は、書き換えたいURL（末尾はスラッシュなし）
+
 $dir_tgt = '';      // 開始ディレクトリ名(末尾はスラッシュなし)
 $dir_depth = 'all';      // 取得する階層の深さ
-$is_link = false;    // リストにリンクをつけたい時「true」いらない場合「false」
-$is_download = false;   // csvファイルをダウロードするとき「true」、いらない場合「false」
-$extension = 'html, php';    // 取得したい拡張子（複数ある場合はカンマ区切り、全部のときは空にする）
-$exclude = '_build, assets';    // 取得対象から除外したいディレクトリ（複数ある場合はカンマ区切り）同名ディレクトリの処理を変更するときは、開始ディレクトリから、スラッシュ区切りで指定する
 
 $remove_title = '';     // 下層ページの共通タイトルテキスト（表示時、除去します）
+
+$is_download = false;   // csvファイルをダウロードするとき「true」、いらない場合「false」
 ?>
 
 <?php
@@ -30,29 +32,34 @@ if (strpos($dir_tgt, '..') !== false && empty($_SERVER['HTTPS']) === false) {
     die();
 }
 
-// 階層の深さ
-if (ctype_digit($dir_depth)) {
-    $dir_depth = (+$dir_depth);
-} else {
-    $dir_depth = 'all';
-}
-
-// スラッシュ調整
-$dir_tgt = rtrim($dir_tgt, '/');
-
 //　定数
 $url = dirname((empty($_SERVER['HTTPS']) ? 'http://' : 'https://') . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
 $path = dirname(__FILE__);
 $dir_url = ($dir_tgt === '')? $url: $url . '/' . $dir_tgt;
 $dir_path = ($dir_tgt === '')? $path: $path . '/' . $dir_tgt;
 
+
+// 階層の深さを有効な値か判別する
+$dir_depth = preg_replace('/[ 　]+/u', '', $dir_depth);
+if (ctype_digit($dir_depth)) {
+    $dir_depth = (+$dir_depth);
+} else {
+    $dir_depth = 'all';
+}
+
+// 対象ディレクトリのパスを調整する（末尾のスラッシュ除去）
+$dir_tgt = rtrim($dir_tgt, '/');
+
+// 拡張子を小文字にして配列にする
 $extension = preg_replace('/[ 　]+/u', '', $extension);
 $extension = mb_strtolower($extension);
 $array_extension = explode(',', $extension);
 
+// 除外ディレクトリを配列にする
 $exclude = preg_replace('/[ 　]+/u', '', $exclude);
 $array_exclude = explode(',', $exclude);
 
+// 除外ディレクトリ配列をパス込みにする
 for ($i = 0; $i < count($array_exclude); $i++) {
     if (strpos($array_exclude[$i], '/') !== false) {
         $array_exclude[$i] = ltrim($array_exclude[$i], '/');
