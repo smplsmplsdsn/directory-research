@@ -2,9 +2,9 @@
 
 // 設定（このファイルを修正しなくても、getパラメータで上書きすることが可能）
 $extension = 'html,php';    // 取得したい拡張子（複数ある場合はカンマ区切り、全部のときは「all」にする）
+$link_text = '';    // URLを書き換える場合は、書き換えたいURL（末尾はスラッシュなし）
 $dir_tgt = '';      // 開始ディレクトリ名(末尾はスラッシュなし)
 $dir_depth = 'all';      // 取得する階層の深さ
-$honban = '';    // URLを書き換える場合は、書き換えたいURL（末尾はスラッシュなし）
 $is_link = false;    // リストにリンクをつけたい時「true」いらない場合「false」
 $is_download = false;   // csvファイルをダウロードするとき「true」、いらない場合「false」
 $extension = 'html, php';    // 取得したい拡張子（複数ある場合はカンマ区切り、全部のときは空にする）
@@ -17,7 +17,7 @@ $remove_title = '';     // 下層ページの共通タイトルテキスト（�
 // パラメータで上書き用
 if ($_GET['dir']) $dir_tgt = $_GET['dir'];
 if ($_GET['depth']) $dir_depth = $_GET['depth'].trim();
-if ($_GET['url']) $honban = $_GET['url'];
+if ($_GET['url']) $link_text = $_GET['url'];
 if ($_GET['link'] && $_GET['link'] !== 'false') $is_link = true;
 if ($_GET['extension']) $extension = $_GET['extension'];
 if ($_GET['title']) $remove_title = $_GET['title'];
@@ -102,7 +102,7 @@ function echo_html($file, $type) {
     global $is_link;
     global $dir_url;
     global $dir_path;
-    global $honban;
+    global $link_text;
     global $remove_title;
     global $is_file_create;
     global $res;
@@ -110,7 +110,7 @@ function echo_html($file, $type) {
     global $dir_depth;
 
     $link = str_replace($dir_path, $dir_url, $file);
-    $link = str_replace($dir_url, $honban, $link);
+    $link = str_replace($dir_url, $link_text, $link);
 
     $num = get_dir_deep($file);
     $num = (+$num);
