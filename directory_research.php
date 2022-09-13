@@ -1,6 +1,7 @@
 <?php
 
 // 設定（このファイルを修正しなくても、getパラメータで上書きすることが可能）
+$extension = 'html,php';    // 取得したい拡張子（複数ある場合はカンマ区切り、全部のときは「all」にする）
 $dir_tgt = '';      // 開始ディレクトリ名(末尾はスラッシュなし)
 $dir_depth = 'all';      // 取得する階層の深さ
 $honban = '';    // URLを書き換える場合は、書き換えたいURL（末尾はスラッシュなし）
@@ -212,7 +213,7 @@ function set_list($dir) {
                 $fileinfo = pathinfo($file);
                 $fileinfo_extension = $fileinfo['extension'];
 
-                if ($extension === '' || in_array($fileinfo_extension, $array_extension)) {
+                if ($extension === 'all' || in_array($fileinfo_extension, $array_extension)) {
                     echo_html($file, 'file');                    
                 }
             }
