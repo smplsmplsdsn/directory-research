@@ -47,6 +47,7 @@ $dir_url = ($dir_tgt === '')? $url: $url . '/' . $dir_tgt;
 $dir_path = ($dir_tgt === '')? $path: $path . '/' . $dir_tgt;
 
 $extension = preg_replace('/[ 　]+/u', '', $extension);
+$extension = mb_strtolower($extension);
 $array_extension = explode(',', $extension);
 
 $exclude = preg_replace('/[ 　]+/u', '', $exclude);
@@ -212,6 +213,7 @@ function set_list($dir) {
             } else if (is_file($file)) {
                 $fileinfo = pathinfo($file);
                 $fileinfo_extension = $fileinfo['extension'];
+                $fileinfo_extension = mb_strtolower($fileinfo_extension);
 
                 if ($extension === 'all' || in_array($fileinfo_extension, $array_extension)) {
                     echo_html($file, 'file');                    
