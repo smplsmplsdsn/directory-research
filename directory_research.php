@@ -16,7 +16,7 @@ $remove_title = '';     // 下層ページの共通タイトルテキスト（�
 <?php
 // パラメータで上書き用
 if ($_GET['dir']) $dir_tgt = $_GET['dir'];
-if ($_GET['depth']) $dir_depth = $_GET['depth'].trim();
+if ($_GET['depth']) $dir_depth = $_GET['depth'];
 if ($_GET['url']) $link_text = $_GET['url'];
 if ($_GET['link'] && $_GET['link'] !== 'false') $is_link = true;
 if ($_GET['extension']) $extension = $_GET['extension'];
