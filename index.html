@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ディレクトリ構造を取得して、自動でディレクトリー・ファイル一覧をつくる</title>
+    <link rel="stylesheet" href="./sample/assets/css/sample.css">
+</head>
+<body>
+
+    <form action="./directory_research.php" method="get" target="_blank">
+        <h1>
+            <a href="https://simplesimples.com/web/markup/php/directory-research/">【記事】ディレクトリ構造を取得して、自動でディレクトリー・ファイル一覧をつくる</a>
+        </h1>        
+        <fieldset>
+            <label>
+                <strong>取得する拡張子(デフォルト: html, php)</strong>
+                <span>
+                    <input type="text" name="extension" value="">
+                </span>
+            </label>
+        </fieldset>
+      
+        <h2>高度な設定</h2>
+        <fieldset>
+            <label>
+                <strong>除外するフォルダ</strong>
+                <span>
+                    <input type="text" name="exclude" value="">
+                </span>
+            </label>
+        </fieldset>
+        <fieldset>
+            <div>
+                <strong>リンク付きで取得するか</strong>
+                <span class="radio">
+                    <label>
+                        <input type="radio" name="link" value="true">
+                        <span>true</span>
+                    </label>
+                    <label>
+                        <input type="radio" name="link" value="false" checked>
+                        <span>false</span>
+                    </label>
+                </span>
+            </div>
+            <label>
+                <strong>リンクのドメインパスを置換する場合、その文字列</strong>
+                <span>
+                    <input type="text" name="url" value="">
+                </span>
+            </label>
+        </fieldset>
+        <fieldset>
+            <label>
+                <strong>調査対象の開始ディレクトリを変更する場合、その文字列</strong>
+                <span>
+                    <input type="text" name="dir" value="">
+                </span>
+            </label>
+            <label>
+                <strong>取得する階層数を指定する場合、その数字</strong>
+                <span>
+                    <input type="text" name="depth" value="">
+                </span>
+            </label>
+        </fieldset>
+        <fieldset>
+            <label>
+                <strong>titleタグの共通テキストを除外する場合、その文字列</strong>
+                <span>
+                    <input type="text" name="title" value="">
+                </span>
+            </label>
+        </fieldset>
+        <fieldset>
+            <label>
+                <strong>CSVファイルを作成するか</strong>
+                <span class="radio">
+                    <label>
+                        <input type="radio" name="download" value="true">
+                        <span>true</span>
+                    </label>
+                    <label>
+                        <input type="radio" name="download" value="false" checked>
+                        <span>false</span>
+                    </label>
+                </span>
+            </label>
+        </fieldset>
+
+        <p class="submit">
+            <input type="submit" value="調べる">
+        </p>
+
+        <h2>調査対象のディレクトリ構造</h2>
+        <img src="./sample/assets/images/sample.png">
+    </form>
+    
+</body>
+</html>
